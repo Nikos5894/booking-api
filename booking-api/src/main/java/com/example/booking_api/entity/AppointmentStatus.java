@@ -1,4 +1,9 @@
 package com.example.booking_api.entity;
 
-public class AppointmentStatus {
+public enum AppointmentStatus {
+    PENDING,
+    SCHEDULED,   // Заплановано
+    CONFIRMED,   // Підтверджено
+    CANCELLED,   // Скасовано
+    COMPLETED    // Завершено
 }
