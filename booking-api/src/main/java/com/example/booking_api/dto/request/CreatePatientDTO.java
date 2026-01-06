@@ -1,4 +1,4 @@
-package com.example.booking_api.dto;
+package com.example.booking_api.dto.request;
 
 import com.example.booking_api.dto.validation.PhoneNumber;
 import lombok.AllArgsConstructor;

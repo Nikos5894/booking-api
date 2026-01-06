@@ -1,4 +1,4 @@
-package com.example.booking_api.dto;
+package com.example.booking_api.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,13 +8,15 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DoctorDTO {
+public class PatientDTO {
 
     private Long id;
 
-    private String doctorName;
+    private String patientName;
 
-    private String specialization;
+    private String phoneNumber;
+
+    private String email;
 
     private LocalDateTime createdAt;
 

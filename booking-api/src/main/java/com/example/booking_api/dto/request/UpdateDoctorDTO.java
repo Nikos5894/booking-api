@@ -1,17 +1,15 @@
-package com.example.booking_api.dto;
+package com.example.booking_api.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateDoctorDTO {
+public class UpdateDoctorDTO {
 
-    @NotBlank(message = "Ім'я лікаря обов'язкове")
     @Size(max = 255, message = "Ім'я лікаря не може бути довше 255 символів")
     private String doctorName;
 

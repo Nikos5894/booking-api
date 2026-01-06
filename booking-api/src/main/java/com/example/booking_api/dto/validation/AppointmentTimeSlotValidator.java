@@ -1,6 +1,6 @@
 package com.example.booking_api.dto.validation;
 
-import com.example.booking_api.dto.CreateAppointmentDTO;
+import com.example.booking_api.dto.request.CreateAppointmentDTO;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.time.LocalTime;
