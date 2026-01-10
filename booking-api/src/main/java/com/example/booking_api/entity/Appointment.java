@@ -55,4 +55,12 @@ public class Appointment {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+    public AppointmentStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(AppointmentStatus status) {
+        this.status = status;
+    }
 }
