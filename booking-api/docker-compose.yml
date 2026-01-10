@@ -1,23 +1,48 @@
-version: '3.8'
 
 services:
   postgres:
-    image: postgres:16
+    image: postgres:16-alpine
     container_name: booking-api-postgres
     environment:
-      POSTGRES_DB: booking_db
+      POSTGRES_DB: bookingdb
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST_AUTH_METHOD: scram-sha-256  # ✅ Додай це
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - booking-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d bookingdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: booking-api-app
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/bookingdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - booking-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
 
 networks:
   booking-network:
     driver: bridge
-
-volumes:
-  postgres_data:
