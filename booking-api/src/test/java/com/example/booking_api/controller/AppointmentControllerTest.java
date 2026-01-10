@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -33,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@Transactional
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 @DisplayName("AppointmentController Integration Tests")
 class AppointmentControllerTest {
 
@@ -216,7 +217,7 @@ class AppointmentControllerTest {
                 .andDo(print())
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
-                .andExpect(jsonPath("$.message").value(containsString("не знайдено.")));
+                .andExpect(jsonPath("$.message").value("Запис з ID 999 не знайдено"));
     }
 
     @Test
@@ -334,11 +335,11 @@ class AppointmentControllerTest {
         appointment.setStatus(AppointmentStatus.SCHEDULED);
         Appointment saved = appointmentRepository.save(appointment);
 
-        mockMvc.perform(delete("/api/appointments/{id}", saved.getId()))
+        mockMvc.perform(patch("/api/appointments/{id}/cancel", saved.getId()))
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
-        long count = appointmentRepository.count();
-        assert count == 0 : "Запис має бути видалений";
+        Appointment cancelled = appointmentRepository.findById(saved.getId()).orElseThrow();
+        assert cancelled.getStatus() == AppointmentStatus.CANCELLED : "Статус має бути CANCELLED";
     }
 }

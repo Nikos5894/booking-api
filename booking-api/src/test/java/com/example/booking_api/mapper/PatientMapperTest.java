@@ -24,7 +24,7 @@ class PatientMapperTest {
         Patient entity = mapper.toEntity(dto);
 
         // Then
-        assertThat(entity.getPatientName()).isEqualTo("Др. Коваленко");
+        assertThat(entity.getPatientName()).isEqualTo("Пац. Коваленко");
         assertThat(entity.getEmail()).isEqualTo("testPatient@gmail.com");
     }
 

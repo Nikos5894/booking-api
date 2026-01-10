@@ -78,4 +78,14 @@ public class AppointmentController {
         appointmentService.cancelAppointment(id);
         return ResponseEntity.noContent().build();
     }
+
+    /**
+     * Видалення запису
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteAppointment(@PathVariable Long id) {
+        appointmentService.deleteAppointment(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }

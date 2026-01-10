@@ -1,11 +1,12 @@
 package com.example.booking_api.dto.request;
 
 import com.example.booking_api.dto.validation.AppointmentTimeSlot;
+import com.example.booking_api.entity.AppointmentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -22,9 +23,10 @@ public class CreateAppointmentDTO {
     private Long patientId;
 
     @NotNull(message = "Дата прийому обов'язкова")
-    @Future(message = "Дата прийому повинна бути в майбутньому")
+    @FutureOrPresent(message = "Дата прийому повинна бути в майбутньому або сьогодні")
     private LocalDate appointmentDate;
 
     @NotNull(message = "Час прийому обов'язковий")
     private LocalTime appointmentTime;
+
 }

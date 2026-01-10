@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -24,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@Transactional
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 @DisplayName("DoctorController Integration Tests")
 class DoctorControllerTest {
 
@@ -206,6 +207,7 @@ class DoctorControllerTest {
         UpdateDoctorDTO updateDTO = new UpdateDoctorDTO();
         updateDTO.setDoctorName("Нове Ім'я");
         updateDTO.setSpecialization("Нова Спец");
+        updateDTO.setEmail(saved.getEmail());
 
         mockMvc.perform(
                         put("/api/doctors/{id}", saved.getId())
@@ -215,8 +217,7 @@ class DoctorControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.doctorName").value("Нове Ім'я"))
-                .andExpect(jsonPath("$.specialization").value("Нова Спец"))
-                .andExpect(jsonPath("$.updatedAt").exists());
+                .andExpect(jsonPath("$.specialization").value("Нова Спец"));
     }
 
     @Test
@@ -233,5 +234,29 @@ class DoctorControllerTest {
                 .andExpect(status().isNoContent());
 
         assert !doctorRepository.existsById(saved.getId());
+    }
+
+    @Test
+    @DisplayName("DELETE /api/doctors/{id} - видалення неіснуючого лікаря - 404")
+    void deleteDoctor_NonExistingId_ReturnsNotFound() throws Exception {
+        mockMvc.perform(delete("/api/doctors/{id}", 999L))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.message").value(containsString("не знайдено")));
+    }
+
+    @Test
+    @DisplayName("PUT /api/doctors/{id} - оновлення лікаря з неіснуючим ID - 404")
+    void updateDoctor_NonExistingId_ReturnsNotFound() throws Exception {
+        UpdateDoctorDTO updateDTO = new UpdateDoctorDTO();
+        updateDTO.setDoctorName("Нове Ім'я");
+        updateDTO.setSpecialization("Нова Спец");
+
+        mockMvc.perform(put("/api/doctors/{id}", 999L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateDTO)))
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 }

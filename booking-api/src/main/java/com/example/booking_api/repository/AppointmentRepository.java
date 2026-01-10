@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Repository
@@ -49,6 +50,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
      * Знайти записи пацієнта за статусом
      */
     List<Appointment> findByPatientIdAndStatus(Long patientId, AppointmentStatus status);
+
+    boolean existsByDoctorIdAndAppointmentDateAndAppointmentTime(Long doctorId, LocalDate appointmentDate, LocalTime appointmentTime);
 
     // ========== CUSTOM QUERY METHODS ==========
 

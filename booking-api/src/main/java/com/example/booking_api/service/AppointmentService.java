@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -117,6 +118,7 @@ public class AppointmentService {
             appointment.setStatus(dto.getStatus());
         }
 
+        appointment.setUpdatedAt(LocalDateTime.now());
         Appointment updated = appointmentRepository.save(appointment);
         return convertToDTO(updated);
     }
@@ -131,7 +133,18 @@ public class AppointmentService {
                 ));
 
         appointment.setStatus(AppointmentStatus.CANCELLED);
+        appointment.setUpdatedAt(LocalDateTime.now());
         appointmentRepository.save(appointment);
+    }
+
+    /**
+     * Видалення запису
+     */
+    public void deleteAppointment(Long id) {
+        if (!appointmentRepository.existsById(id)) {
+            throw new EntityNotFoundException("Appointment не знайдено з ID: " + id);
+        }
+        appointmentRepository.deleteById(id);
     }
 
     // ========== ДОПОМІЖНІ МЕТОДИ ==========
