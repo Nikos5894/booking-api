@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 @Repository
@@ -17,14 +16,19 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     // ========== DERIVED QUERY METHODS ==========
 
     /**
-     * Знайти всі записи для лікаря
+     * Знайти записи за ID лікаря
      */
     List<Appointment> findByDoctorId(Long doctorId);
 
     /**
-     * Знайти всі записи для пацієнта
+     * Знайти записи за ID пацієнта
      */
     List<Appointment> findByPatientId(Long patientId);
+
+    /**
+     * Знайти записи за датою
+     */
+    List<Appointment> findByAppointmentDate(LocalDate appointmentDate);
 
     /**
      * Знайти записи за статусом
@@ -32,109 +36,37 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> findByStatus(AppointmentStatus status);
 
     /**
-     * Знайти записи лікаря на конкретну дату
+     * Знайти записи між датами
      */
-    List<Appointment> findByDoctorIdAndAppointmentDate(Long doctorId, LocalDate date);
+    List<Appointment> findByAppointmentDateBetween(LocalDate startDate, LocalDate endDate);
+
+    /**
+     * Знайти записи лікаря за статусом
+     */
+    List<Appointment> findByDoctorIdAndStatus(Long doctorId, AppointmentStatus status);
 
     /**
      * Знайти записи пацієнта за статусом
      */
     List<Appointment> findByPatientIdAndStatus(Long patientId, AppointmentStatus status);
 
-    /**
-     * Перевірити чи існує запис лікаря на конкретний час
-     */
-    boolean existsByDoctorIdAndAppointmentDateAndAppointmentTime(
-            Long doctorId,
-            LocalDate date,
-            LocalTime time
-    );
-
-    /**
-     * Знайти записи за діапазоном дат
-     */
-    List<Appointment> findByAppointmentDateBetween(LocalDate startDate, LocalDate endDate);
-
     // ========== CUSTOM QUERY METHODS ==========
 
     /**
-     * Знайти майбутні записи лікаря
+     * Знайти записи лікаря на певну дату
      */
-    @Query("SELECT a FROM Appointment a WHERE a.doctor.id = :doctorId " +
-            "AND a.appointmentDate >= :today " +
-            "ORDER BY a.appointmentDate ASC, a.appointmentTime ASC")
-    List<Appointment> findUpcomingAppointmentsByDoctor(
-            @Param("doctorId") Long doctorId,
-            @Param("today") LocalDate today
-    );
+    @Query("SELECT a FROM Appointment a WHERE a.doctor.id = :doctorId AND a.appointmentDate = :date")
+    List<Appointment> findByDoctorIdAndDate(@Param("doctorId") Long doctorId, @Param("date") LocalDate date);
 
     /**
-     * Знайти майбутні записи пацієнта
+     * Підрахувати кількість записів лікаря
      */
-    @Query("SELECT a FROM Appointment a WHERE a.patient.id = :patientId " +
-            "AND a.appointmentDate >= :today " +
-            "ORDER BY a.appointmentDate ASC, a.appointmentTime ASC")
-    List<Appointment> findUpcomingAppointmentsByPatient(
-            @Param("patientId") Long patientId,
-            @Param("today") LocalDate today
-    );
+    @Query("SELECT COUNT(a) FROM Appointment a WHERE a.doctor.id = :doctorId")
+    Long countByDoctorId(@Param("doctorId") Long doctorId);
 
     /**
-     * Знайти історію записів пацієнта
+     * Підрахувати кількість записів пацієнта
      */
-    @Query("SELECT a FROM Appointment a WHERE a.patient.id = :patientId " +
-            "AND (a.appointmentDate < :today OR a.status = 'COMPLETED') " +
-            "ORDER BY a.appointmentDate DESC, a.appointmentTime DESC")
-    List<Appointment> findAppointmentHistory(
-            @Param("patientId") Long patientId,
-            @Param("today") LocalDate today
-    );
-
-    /**
-     * Знайти записи за статусом та діапазоном дат
-     */
-    @Query("SELECT a FROM Appointment a WHERE a.status = :status " +
-            "AND a.appointmentDate BETWEEN :startDate AND :endDate " +
-            "ORDER BY a.appointmentDate DESC")
-    List<Appointment> findByStatusAndDateRange(
-            @Param("status") AppointmentStatus status,
-            @Param("startDate") LocalDate startDate,
-            @Param("endDate") LocalDate endDate
-    );
-
-    /**
-     * Підрахувати кількість записів лікаря на дату
-     */
-    @Query("SELECT COUNT(a) FROM Appointment a WHERE a.doctor.id = :doctorId " +
-            "AND a.appointmentDate = :date")
-    Long countAppointmentsByDoctorAndDate(
-            @Param("doctorId") Long doctorId,
-            @Param("date") LocalDate date
-    );
-
-    /**
-     * Знайти зайняті слоти лікаря на дату
-     */
-    @Query("SELECT a.appointmentTime FROM Appointment a WHERE a.doctor.id = :doctorId " +
-            "AND a.appointmentDate = :date " +
-            "AND a.status != 'CANCELLED'")
-    List<LocalTime> findBookedTimeSlots(
-            @Param("doctorId") Long doctorId,
-            @Param("date") LocalDate date
-    );
-
-    /**
-     * Пошук записів з деталями (оптимізований)
-     */
-    @Query("SELECT a FROM Appointment a " +
-            "JOIN FETCH a.doctor " +
-            "JOIN FETCH a.patient " +
-            "WHERE a.doctor.id = :doctorId " +
-            "AND a.appointmentDate = :date " +
-            "AND a.status = :status")
-    List<Appointment> findAppointmentsWithDetails(
-            @Param("doctorId") Long doctorId,
-            @Param("date") LocalDate date,
-            @Param("status") AppointmentStatus status
-    );
+    @Query("SELECT COUNT(a) FROM Appointment a WHERE a.patient.id = :patientId")
+    Long countByPatientId(@Param("patientId") Long patientId);
 }
