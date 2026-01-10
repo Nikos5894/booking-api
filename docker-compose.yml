@@ -1,16 +1,23 @@
+version: '3.8'
+
 services:
   postgres:
     image: postgres:16
-    container_name: booking-api-db
+    container_name: booking-api-postgres
     environment:
       POSTGRES_DB: booking_db
-      POSTGRES_USER: booking_user
-      POSTGRES_PASSWORD: booking_password
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    restart: unless-stopped
+    networks:
+      - booking-network
+
+networks:
+  booking-network:
+    driver: bridge
 
 volumes:
   postgres_data:

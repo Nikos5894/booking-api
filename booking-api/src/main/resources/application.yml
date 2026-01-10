@@ -2,28 +2,31 @@ spring:
   application:
     name: booking-api
 
-  profiles:
-    active: dev
-
   datasource:
     url: jdbc:postgresql://localhost:5432/booking_db
-    username: booking_user
-    password: booking_password
+    username: postgres
+    password: postgres
     driver-class-name: org.postgresql.Driver
 
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    show-sql: false
+    hibernate:
+      ddl-auto: update  # create, update, validate, none
+    show-sql: true
     properties:
       hibernate:
         format_sql: true
-        use_sql_comments: true
-    open-in-view: false
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    time-zone: Europe/Kiev
 
 server:
-  port: 8082
+  port: 8080
 
 logging:
   level:
-    root: INFO
-    com.yourname.bookingapi: INFO
+    com.example.booking_api: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE

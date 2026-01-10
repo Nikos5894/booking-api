@@ -16,31 +16,34 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor  // Lombok створить конструктор автоматично
+@RequiredArgsConstructor
 public class AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
     private final DoctorRepository doctorRepository;
     private final PatientRepository patientRepository;
 
+    // ========== CREATE ==========
+
     @Transactional
     public AppointmentDTO createAppointment(CreateAppointmentDTO dto) {
-        // 1. Перевірка чи існує Doctor
+        // Перевірка Doctor
         Doctor doctor = doctorRepository.findById(dto.getDoctorId())
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Лікаря з ID " + dto.getDoctorId() + " не знайдено"
                 ));
 
-        // 2. Перевірка чи існує Patient
+        // Перевірка Patient
         Patient patient = patientRepository.findById(dto.getPatientId())
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Пацієнта з ID " + dto.getPatientId() + " не знайдено"
                 ));
 
-        // 3. Перевірка чи час вільний
+        // Перевірка чи вільний час
         boolean timeSlotTaken = appointmentRepository
                 .existsByDoctorIdAndAppointmentDateAndAppointmentTime(
                         dto.getDoctorId(),
@@ -54,21 +57,19 @@ public class AppointmentService {
             );
         }
 
-        // 4. Створення сутності Appointment
+        // Створення запису
         Appointment appointment = new Appointment();
         appointment.setDoctor(doctor);
         appointment.setPatient(patient);
         appointment.setAppointmentDate(dto.getAppointmentDate());
         appointment.setAppointmentTime(dto.getAppointmentTime());
-        appointment.setStatus(AppointmentStatus.SCHEDULED);  // Початковий статус
-        appointment.setCreatedAt(LocalDateTime.now());
+        appointment.setStatus(AppointmentStatus.SCHEDULED);
 
-        // 5. Збереження в БД
-        Appointment savedAppointment = appointmentRepository.save(appointment);
-
-        // 6. Конвертація в DTO для відповіді
-        return convertToDTO(savedAppointment);
+        Appointment saved = appointmentRepository.save(appointment);
+        return convertToDTO(saved);
     }
+
+    // ========== READ ==========
 
     @Transactional(readOnly = true)
     public AppointmentDTO getAppointmentById(Long id) {
@@ -76,9 +77,26 @@ public class AppointmentService {
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Запис з ID " + id + " не знайдено"
                 ));
-
         return convertToDTO(appointment);
     }
+
+    @Transactional(readOnly = true)
+    public List<AppointmentDTO> getAppointmentsByDoctor(Long doctorId) {
+        return appointmentRepository.findByDoctorId(doctorId)
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<AppointmentDTO> getAppointmentsByPatient(Long patientId) {
+        return appointmentRepository.findByPatientId(patientId)
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    // ========== UPDATE ==========
 
     @Transactional
     public AppointmentDTO updateAppointment(Long id, UpdateAppointmentDTO dto) {
@@ -87,7 +105,6 @@ public class AppointmentService {
                         "Запис з ID " + id + " не знайдено"
                 ));
 
-        // Оновлення полів якщо вони передані
         if (dto.getAppointmentDate() != null) {
             appointment.setAppointmentDate(dto.getAppointmentDate());
         }
@@ -100,11 +117,11 @@ public class AppointmentService {
             appointment.setStatus(dto.getStatus());
         }
 
-        appointment.setUpdatedAt(LocalDateTime.now());
-
         Appointment updated = appointmentRepository.save(appointment);
         return convertToDTO(updated);
     }
+
+    // ========== DELETE / CANCEL ==========
 
     @Transactional
     public void cancelAppointment(Long id) {
@@ -114,12 +131,11 @@ public class AppointmentService {
                 ));
 
         appointment.setStatus(AppointmentStatus.CANCELLED);
-        appointment.setUpdatedAt(LocalDateTime.now());
-
         appointmentRepository.save(appointment);
     }
 
-    // Допоміжний метод для конвертації Entity -> DTO
+    // ========== ДОПОМІЖНІ МЕТОДИ ==========
+
     private AppointmentDTO convertToDTO(Appointment appointment) {
         AppointmentDTO dto = new AppointmentDTO();
         dto.setId(appointment.getId());
@@ -132,7 +148,6 @@ public class AppointmentService {
         dto.setStatus(appointment.getStatus());
         dto.setCreatedAt(appointment.getCreatedAt());
         dto.setUpdatedAt(appointment.getUpdatedAt());
-
         return dto;
     }
 }
