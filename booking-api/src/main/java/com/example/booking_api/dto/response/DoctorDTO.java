@@ -16,7 +16,12 @@ public class DoctorDTO {
 
     private String specialization;
 
+    private String email;
+
+    private String phone;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
 }

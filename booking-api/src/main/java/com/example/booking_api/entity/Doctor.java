@@ -13,20 +13,26 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Doctor {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "doctor_name", nullable = false, length = 255)
+    @Column(name = "doctor_name", nullable = false)
     private String doctorName;
-    
-    @Column(name = "specialization", length = 255)
+
+    @Column(name = "specialization")
     private String specialization;
-    
+
+    @Column(name = "email", unique = true)
+    private String email;
+
+    @Column(name = "phone", length = 50)
+    private String phone;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-    
+
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 

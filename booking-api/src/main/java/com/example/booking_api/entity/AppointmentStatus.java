@@ -1,9 +1,9 @@
 package com.example.booking_api.entity;
 
 public enum AppointmentStatus {
-    PENDING,
     SCHEDULED,   // Заплановано
     CONFIRMED,   // Підтверджено
+    COMPLETED,   // Завершено
     CANCELLED,   // Скасовано
-    COMPLETED    // Завершено
+    NO_SHOW      // Пацієнт не з'явився
 }
