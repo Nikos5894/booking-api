@@ -18,6 +18,8 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
      * Знайти лікаря за email
      */
     Optional<Doctor> findByEmail(String email);
+    Optional<Doctor> findByUserId(Long userId);
+
 
     /**
      * Знайти лікарів за спеціалізацією

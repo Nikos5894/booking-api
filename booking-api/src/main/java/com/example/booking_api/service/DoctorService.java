@@ -4,6 +4,7 @@ import com.example.booking_api.dto.request.CreateDoctorDTO;
 import com.example.booking_api.dto.request.UpdateDoctorDTO;
 import com.example.booking_api.dto.response.DoctorDTO;
 import com.example.booking_api.entity.Doctor;
+import com.example.booking_api.exception.NotFoundException;
 import com.example.booking_api.repository.DoctorRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -59,6 +60,11 @@ public class DoctorService {
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+    public Doctor findByUserId(Long userId) {
+        return doctorRepository.findByUserId(userId)
+                .orElseThrow(() -> new NotFoundException("Doctor profile not found"));
     }
 
     @Transactional(readOnly = true)

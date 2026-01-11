@@ -18,6 +18,7 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
      * Знайти пацієнта за email
      */
     Optional<Patient> findByEmail(String email);
+    Optional<Patient> findByUserId(Long userId);
 
     /**
      * Знайти пацієнта за номером телефону

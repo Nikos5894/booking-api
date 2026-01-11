@@ -4,11 +4,14 @@ import com.example.booking_api.dto.request.CreatePatientDTO;
 import com.example.booking_api.dto.request.UpdatePatientDTO;
 import com.example.booking_api.dto.response.PatientDTO;
 import com.example.booking_api.entity.Patient;
+import com.example.booking_api.exception.NotFoundException;
 import com.example.booking_api.repository.PatientRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -49,6 +52,11 @@ public class PatientService {
     }
 
     // ========== READ ==========
+
+    public Patient findByUserId(Long userId) {
+        return patientRepository.findByUserId(userId)
+                .orElseThrow(() -> new NotFoundException("Patient", "userId", userId));
+    }
 
     @Transactional(readOnly = true)
     public PatientDTO getPatientById(Long id) {
